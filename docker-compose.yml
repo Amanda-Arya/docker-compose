@@ -1,0 +1,36 @@
+version: '3.1'
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin1234
+      MYSQL_DATABASE: application-cloud
+    ports:
+      - '3307:3306'
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - network01
+    
+  nodeapp:
+    image: amandavergilio/node-app:latest
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: admin1234
+      MYSQL_DATABASE: application-cloud
+    networks:
+      - network01
+    command: ["npm", "start"]
+    depends_on:
+      - mysql
+
+networks:
+  network01:
+    driver: bridge
